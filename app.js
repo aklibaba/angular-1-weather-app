@@ -15,6 +15,10 @@ weatherApp.config(['$locationProvider', '$routeProvider', function ($locationPro
       templateUrl: 'pages/forecast.html',
       controller: 'forecastController'
     })
+    .when('/forecast/:days', {
+      templateUrl: 'pages/forecast.html',
+      controller: 'forecastController'
+    })
 }]);
 
 weatherApp.service('shareCity', function () {
@@ -25,6 +29,28 @@ weatherApp.service('shareCity', function () {
   this.getCity = function () {
     return _city;
   };
+});
+
+weatherApp.service('tempConverter', function () {
+  this.convert = function (opt) {
+    if (opt.unit === 'C') {
+      return opt['amount'] - 273.15;
+    }
+    else if (opt.unit === 'K') {
+      return opt['amount'] + 273.15;
+    }
+  }
+});
+
+weatherApp.directive('dateCard', function () {
+  return {
+    templateUrl: 'pages/date-card.html',
+    replace: true,
+    scope: {
+      w: "=weatherObject",
+      tempConverter: "&"
+    }
+  }
 });
 
 weatherApp.controller('homeController', ['$scope', 'shareCity', '$location', function ($scope, shareCity, $location) {
@@ -38,20 +64,29 @@ weatherApp.controller('homeController', ['$scope', 'shareCity', '$location', fun
 
 }]);
 
-weatherApp.controller('forecastController', ['$scope', '$resource', 'shareCity', function ($scope, $resource, shareCity) {
-  $scope.city = shareCity.getCity();
-  var weatherAPiId = 'ec84ae7111a3dafd02e5a984872f4461';
-  var weatherAppUrl = 'http://api.openweathermap.org/data/2.5/forecast';
-  var weatherApi = $resource(weatherAppUrl,
-    {
-      get: {
-        method: 'GET'
-      }
+weatherApp.controller('forecastController', ['$scope', '$resource', '$filter', '$routeParams', 'shareCity', 'tempConverter',
+  function ($scope, $resource, $filter, $routeParams, shareCity, tempConverter) {
+    $scope.city = shareCity.getCity();
+    $scope.tempConverter = function (opt) {
+      return $filter('number')(tempConverter.convert(opt), 2);
+    };
+    $scope.count = $routeParams['days'];
+    console.log(typeof $scope.count);
+    if ($scope.city.trim().length === 0) {
+      $scope.city = 'Warsaw'
+    }
+    var weatherAPiId = 'ec84ae7111a3dafd02e5a984872f4461';
+    var weatherAppUrl = 'http://api.openweathermap.org/data/2.5/forecast';
+    var weatherApi = $resource(weatherAppUrl,
+      {
+        get: {
+          method: 'GET'
+        }
+      });
+    $scope.weatherResult = weatherApi.get({
+      q: $scope.city,
+      cnt: $routeParams['days'] || '2',
+      appid: weatherAPiId
     });
-  $scope.weatherResult = weatherApi.get({
-    q: $scope.city,
-    cnt: 2,
-    appid: weatherAPiId
-  });
-  console.log($scope.weatherResult);
-}]);
+    console.log($scope.weatherResult);
+  }]);

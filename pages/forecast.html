@@ -1,1 +1,17 @@
-<h1>{{city}}</h1>
+<p><a href="#/">Back to Home</a></p>
+
+<h2>Forecats for: {{city}}</h2>
+<hr/>
+Days of forecast
+<a ng-class="{primary: count === '2'}" href="#/forecast/2">2</a> | <a href="#/forecast/5">5</a> | <a
+        href="#/forecast/7">7</a>
+<hr/>
+
+
+<div class="" ng-repeat="w in weatherResult.list">
+    <div class="row">
+        <div class="col-md-12">
+            <date-card temp-converter="tempConverter(opt)"  weather-object="w"></date-card>
+        </div>
+    </div>
+</div>
