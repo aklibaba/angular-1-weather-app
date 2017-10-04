@@ -7,7 +7,8 @@ weatherApp.config(['$locationProvider', '$routeProvider', function ($locationPro
   $routeProvider
     .when('/', {
       templateUrl: 'pages/home.html',
-      controller: 'homeController'
+      controller: 'homeController',
+      controllerAs: 'home'
     })
     .when('/forecast', {
       templateUrl: 'pages/forecast.html',

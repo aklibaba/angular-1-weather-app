@@ -18,3 +18,21 @@ weatherApp.service('tempConverter', function () {
     }
   }
 });
+
+weatherApp.service('weatherService', ['$resource', function ($resource) {
+  var weatherAPiId = 'ec84ae7111a3dafd02e5a984872f4461';
+  var weatherAppUrl = 'http://api.openweathermap.org/data/2.5/forecast';
+  var weatherApi = $resource(weatherAppUrl, {
+    get: {
+      method: 'GET'
+    }
+  });
+
+  this.get = function (opt) {
+    return weatherApi.get({
+      q: opt.q,
+      cnt: opt.cnt,
+      appid: weatherAPiId
+    })
+  }
+}]);
